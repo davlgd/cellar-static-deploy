@@ -29,6 +29,23 @@ bun install -g cellar-static-deploy
 bunx cellar-static-deploy
 ```
 
+### Pre-compiled binaries
+
+Download the latest release for your platform from [GitHub Releases](https://github.com/davlgd/cellar-static-deploy/releases):
+
+- **macOS ARM64**: `cellar-static-deploy-darwin-arm64`
+- **Linux ARM64**: `cellar-static-deploy-linux-arm64`
+- **Linux x64**: `cellar-static-deploy-linux-x64`
+- **Windows x64**: `cellar-static-deploy-windows-x64.exe`
+
+```bash
+# Make executable (Linux/macOS)
+chmod +x cellar-static-deploy-*
+
+# Run directly, for example on macOS ARM64
+./cellar-static-deploy-darwin-arm64 --help
+```
+
 ### From source
 
 ```bash
