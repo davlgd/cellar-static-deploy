@@ -35,3 +35,10 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 # AI Tools
 .claude/
+
+# Compiled binaries
+cellar-static-deploy*
+!cellar-static-deploy/
+
+# Build artifacts
+*.exe

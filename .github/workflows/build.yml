@@ -1,0 +1,83 @@
+name: Build Binaries
+
+on:
+  release:
+    types: [created]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build for ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: bun-linux-x64
+            artifact: cellar-static-deploy-linux-x64
+          - os: ubuntu-latest
+            target: bun-linux-arm64
+            artifact: cellar-static-deploy-linux-arm64
+          - os: macos-latest
+            target: bun-darwin-arm64
+            artifact: cellar-static-deploy-darwin-arm64
+          - os: windows-latest
+            target: bun-windows-x64
+            artifact: cellar-static-deploy-windows-x64.exe
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build binary
+        run: bun build --compile --minify --sourcemap --target=${{ matrix.target }} ./index.ts --outfile ${{ matrix.artifact }}
+
+      - name: Test binary (Unix - native arch only)
+        if: runner.os != 'Windows' && !contains(matrix.target, 'arm64')
+        run: ./${{ matrix.artifact }} --help
+
+      - name: Test binary (Windows - native arch only)
+        if: runner.os == 'Windows' && !contains(matrix.target, 'arm64')
+        run: .\${{ matrix.artifact }} --help
+
+      - name: Verify binary exists (cross-compiled)
+        if: contains(matrix.target, 'arm64')
+        run: file ${{ matrix.artifact }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.artifact }}
+          retention-days: 30
+
+  upload:
+    name: Upload binaries to release
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release'
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./binaries
+
+      - name: Upload binaries to release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ./binaries/*/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -9,7 +9,13 @@
     "cellar-static-deploy": "./index.ts"
   },
   "scripts": {
-    "start": "bun run index.ts"
+    "start": "bun run index.ts",
+    "build": "bun build --compile --minify --sourcemap ./index.ts --outfile cellar-static-deploy",
+    "build:linux-x64": "bun build --compile --minify --sourcemap --target=bun-linux-x64 ./index.ts --outfile cellar-static-deploy-linux-x64",
+    "build:linux-arm64": "bun build --compile --minify --sourcemap --target=bun-linux-arm64 ./index.ts --outfile cellar-static-deploy-linux-arm64",
+    "build:darwin-arm64": "bun build --compile --minify --sourcemap --target=bun-darwin-arm64 ./index.ts --outfile cellar-static-deploy-darwin-arm64",
+    "build:windows-x64": "bun build --compile --minify --sourcemap --target=bun-windows-x64 ./index.ts --outfile cellar-static-deploy-windows-x64",
+    "build:all": "bun run build:linux-x64 && bun run build:linux-arm64 && bun run build:darwin-arm64 && bun run build:windows-x64"
   },
   "keywords": [
     "cellar",
