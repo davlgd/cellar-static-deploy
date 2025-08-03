@@ -8,6 +8,7 @@ A fast, simple tool to deploy static websites to [Clever Cloud Cellar](https://w
 - 🧹 **Smart bucket clearing** with batch processing
 - 🔐 **Secure credentials** via environment variables or CLI
 - 📊 **Real-time progress** with upload/deletion statistics
+- 🔍 **DNS validation** with built-in CNAME checker
 - ⚡ **Powered by Bun** with native S3 client
 
 ## Prerequisites
@@ -61,12 +62,17 @@ The tool will prompt you for:
 
 ```bash
 cellar-static-deploy [options]
+cellar-static-deploy check-dns --domain <domain>
 # or
 bunx cellar-static-deploy [options]
+bunx cellar-static-deploy check-dns -d <domain>
+
+Commands:
+  check-dns           Check DNS CNAME configuration for domain
 
 Options:
   --access-key, -k    Cellar Access Key ID
-  --domain, -d        Domain (bucket name)
+  --domain, -d        Domain (bucket name, can't be an APEX domain)
   --path, -p          Folder path to upload
   --workers, -w       Number of parallel upload workers (default: 16)
   --help, -h          Show help message
@@ -95,6 +101,9 @@ cellar-static-deploy -k ACCESS_KEY_ID -d example.com -p ./dist
 export CELLAR_ADDON_KEY_ID="key_id"
 export CELLAR_ADDON_KEY_SECRET="secret_key"
 bunx cellar-static-deploy -d example.com -p ./dist -w 8
+
+# Check DNS configuration
+bunx cellar-static-deploy check-dns -d www.example.com
 ```
 
 ## How it Works
@@ -104,6 +113,24 @@ bunx cellar-static-deploy -d example.com -p ./dist -w 8
 3. **Clears bucket** by deleting all existing files in parallel batches (1000 objects per batch)
 4. **Uploads files** in parallel with configurable worker pools (default: 16 workers)
 5. **Sets public ACL** for web hosting with proper MIME type detection
+
+## DNS Configuration
+
+### Check DNS Setup
+
+Before deploying, you can verify your DNS configuration using the built-in DNS checker:
+
+```bash
+bunx cellar-static-deploy check-dns -d www.example.com
+```
+
+This command will:
+- ✅ Verify your domain has a proper CNAME record pointing to `cellar-c2.services.clever-cloud.com`
+- ❌ Detect common DNS misconfigurations
+- 💡 Provide specific instructions to fix DNS issues
+
+> [!NOTE]
+> APEX domains (e.g., `example.com`) are not supported. Use a subdomain like `www.example.com`.
 
 ## Clever Cloud Integration
 
@@ -119,8 +146,6 @@ Then, from the [Clever Cloud Console](https://console.clever-cloud.com):
 
 1. Get your credentials from the add-on dashboard
 2. Create a bucket with your domain name
-
-To access the website,add a `CNAME` DNS record for your domain pointing to `cellar-c2.services.clever-cloud.com`
 
 ### Bun Support
 
@@ -155,11 +180,12 @@ This tool follows a modular TypeScript architecture:
 
 ```
 ├── index.ts              # Main entry point and orchestration
-├── src/
-│   ├── types.ts          # Shared types, interfaces, and constants
-│   ├── cli.ts            # CLI argument parsing and interactive prompts
-│   ├── s3-client.ts      # S3/Cellar operations (bucket management, deletion)
-│   └── file-utils.ts     # File system operations and uploads
+└── src/
+    ├── types.ts          # Shared types, interfaces, and constants
+    ├── cli.ts            # CLI argument parsing and interactive prompts
+    ├── s3-client.ts      # S3/Cellar operations (bucket management, deletion)
+    ├── file-utils.ts     # File system operations and uploads
+    └── dns-utils.ts      # DNS validation and CNAME checking
 ```
 
 ## License

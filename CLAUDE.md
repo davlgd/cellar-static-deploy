@@ -11,10 +11,11 @@ This is a CLI tool for deploying static websites to Clever Cloud Cellar (S3-comp
 ```
 ├── index.ts              # Main entry point
 ├── src/
-│   ├── types.ts          # Types, interfaces, and constants
+│   ├── types.ts          # Types, interfaces, constants, and utilities
 │   ├── cli.ts            # CLI argument parsing and prompts
 │   ├── s3-client.ts      # S3/Cellar operations
-│   └── file-utils.ts     # File system and upload utilities
+│   ├── file-utils.ts     # File system and upload utilities
+│   └── dns-utils.ts      # DNS validation and CNAME checking
 ├── package.json          # NPM package configuration
 ├── CHANGELOG.md          # Version history
 └── README.md            # User documentation
@@ -26,6 +27,7 @@ This is a CLI tool for deploying static websites to Clever Cloud Cellar (S3-comp
    - Interactive prompts using `inquirer`
    - Argument parsing with `@bomb.sh/args`
    - Environment variable support
+   - DNS check command handling
 
 2. **S3 Client Module** (`src/s3-client.ts`)
    - Bucket management (creation, verification)
@@ -37,10 +39,15 @@ This is a CLI tool for deploying static websites to Clever Cloud Cellar (S3-comp
    - MIME type detection
    - Parallel file uploads with worker pools
 
-4. **Types Module** (`src/types.ts`)
+4. **DNS Utils Module** (`src/dns-utils.ts`)
+   - CNAME record validation
+   - DNS troubleshooting and error reporting
+   - Cellar endpoint verification
+
+5. **Types Module** (`src/types.ts`)
    - Shared interfaces and constants
-   - Configuration types
-   - API endpoints
+   - Configuration types and utility functions
+   - API endpoints and validation logic
 
 ## Bun Usage Guidelines
 
@@ -61,6 +68,9 @@ bun run index.ts
 # With CLI arguments
 bun run index.ts --domain example.com --path ./dist
 
+# Check DNS configuration
+bun run index.ts check-dns --domain www.example.com
+
 # Show help
 bun run index.ts --help
 ```
@@ -68,10 +78,13 @@ bun run index.ts --help
 ### Key Features
 
 - **Parallel Processing**: Upload and deletion operations use configurable worker pools
-- **Progress Tracking**: Real-time progress with rates and statistics
+- **Progress Tracking**: Real-time progress with rates and statistics  
 - **Error Recovery**: Comprehensive error handling with user guidance
 - **Environment Support**: Automatic detection of Cellar environment variables
+- **DNS Validation**: Built-in CNAME checking with troubleshooting guidance
+- **APEX Domain Prevention**: Validation to ensure subdomains are used
 - **Type Safety**: Full TypeScript with JSDoc documentation
+- **Code Quality**: DRY principles with centralized utilities and constants
 
 ### Dependencies
 
@@ -86,6 +99,8 @@ bun run index.ts --help
 - English-only comments and messages
 - Proper ellipsis characters (…) in user messages
 - Consistent error handling patterns
+- DRY principles with centralized utilities
+- Modular architecture with clear separation of concerns
 
 ## Release Process
 
