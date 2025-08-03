@@ -4,6 +4,28 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2025-08-03
+
+### Added
+- DNS CNAME validation command (`check-dns`) to verify domain configuration
+- Built-in DNS checker to validate CNAME records pointing to Cellar infrastructure
+- Support for validating subdomain configuration before deployment
+- Comprehensive DNS troubleshooting with specific error messages and fix instructions
+
+### Improved
+- Code refactoring and simplification without functional changes
+- Centralized domain validation logic with reusable utility functions
+- Unified error messages and constants for better consistency
+- Reduced code duplication by 50+ lines through DRY principles
+- Enhanced maintainability with modular architecture improvements
+
+### Technical
+- Added `validateSubdomain()` utility function for APEX domain validation
+- Added `calculateStats()` utility function for progress tracking calculations
+- Added constants for DNS error messages and Cellar hostname
+- Centralized manual bucket creation instructions
+- Improved code organization and reduced technical debt
+
 ## [0.1.0] - 2025-01-03
 
 ### Added

@@ -1,6 +1,6 @@
 {
   "name": "cellar-static-deploy",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A fast, simple tool to deploy static websites to Clever Cloud's Cellar Object Storage (S3 compatible)",
   "main": "index.ts",
   "module": "index.ts",

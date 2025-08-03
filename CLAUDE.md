@@ -104,7 +104,7 @@ bun run index.ts --help
 
 ## Release Process
 
-Current version: 0.1.0
+Current version: 0.2.0
 
 - Version management in `package.json`
 - Changelog maintenance in `CHANGELOG.md`
