@@ -1,0 +1,43 @@
+{
+  "name": "cellar-static-deploy",
+  "version": "1.0.0",
+  "description": "A fast, simple tool to deploy static websites to Clever Cloud's Cellar Object Storage (S3 compatible)",
+  "main": "index.ts",
+  "module": "index.ts",
+  "type": "module",
+  "bin": {
+    "cellar-static-deploy": "./index.ts"
+  },
+  "scripts": {
+    "start": "bun run index.ts"
+  },
+  "keywords": [
+    "cellar",
+    "clever-cloud",
+    "s3",
+    "static",
+    "deploy",
+    "bun"
+  ],
+  "author": "davlgd",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/davlgd/cellar-static-deploy.git"
+  },
+  "homepage": "https://github.com/davlgd/cellar-static-deploy#readme",
+  "engines": {
+    "bun": ">=1.0.0"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@bomb.sh/args": "^0.3.1",
+    "@types/inquirer": "^9.0.8",
+    "inquirer": "^12.9.0"
+  }
+}
