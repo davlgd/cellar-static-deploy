@@ -2,6 +2,8 @@ import { S3Client } from "bun";
 import { readdir, stat } from "fs/promises";
 import { join } from "path";
 
+import { calculateStats } from "./types.js";
+
 /**
  * Recursively gets all files from a directory
  * @param dir - Directory to scan
@@ -95,8 +97,7 @@ export async function uploadFolder(client: S3Client, folderPath: string, workers
 
     const updateProgress = () => {
       uploaded++;
-      const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
-      const rate = (uploaded / (Date.now() - startTime) * 1000).toFixed(1);
+      const { elapsed, rate } = calculateStats(startTime, uploaded);
       const percentage = ((uploaded / files.length) * 100).toFixed(1);
       process.stdout.write(`\r📤 Uploading… ${uploaded}/${files.length} (${percentage}%) - ${elapsed}s at ${rate}/s`);
     };
@@ -127,8 +128,7 @@ export async function uploadFolder(client: S3Client, folderPath: string, workers
 
     await Promise.all(uploadPromises);
 
-    const totalTime = ((Date.now() - startTime) / 1000).toFixed(1);
-    const rate = (uploaded / (Date.now() - startTime) * 1000).toFixed(1);
+    const { elapsed: totalTime, rate } = calculateStats(startTime, uploaded);
 
     if (failed > 0) {
       console.log(`\n⚠️  Upload completed with errors! ${uploaded} successful, ${failed} failed in ${totalTime}s (${rate}/s)`);

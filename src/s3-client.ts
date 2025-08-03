@@ -1,6 +1,19 @@
 import { S3Client } from "bun";
 
-import { BATCH_DELETE_SIZE, CELLAR_ENDPOINT, type DeployConfig } from "./types.js";
+import { BATCH_DELETE_SIZE, CELLAR_ENDPOINT, type DeployConfig, calculateStats } from "./types.js";
+
+/**
+ * Displays manual bucket creation instructions
+ * @param bucketName - Name of the bucket to create
+ */
+function showManualBucketInstructions(bucketName: string): void {
+  console.log(`\n🔧 Manual Setup Required:`);
+  console.log(`   Please create the bucket '${bucketName}' manually:`);
+  console.log("   1. Go to https://console.clever-cloud.com/");
+  console.log("   2. Navigate to your Cellar addon");
+  console.log(`   3. Create a new bucket: ${bucketName}`);
+  console.log("   4. Then run this tool again");
+}
 
 /**
  * Creates an S3Client instance configured for Cellar
@@ -78,24 +91,13 @@ async function createBucket(bucketName: string): Promise<boolean> {
     } else {
       console.log("❌ creation failed");
       console.error(`   Status: ${response.status} ${response.statusText}`);
-
-      console.log(`\n🔧 Manual Setup Required:`);
-      console.log(`   Please create the bucket '${bucketName}' manually:`);
-      console.log("   1. Go to https://console.clever-cloud.com/");
-      console.log("   2. Navigate to your Cellar addon");
-      console.log(`   3. Create a new bucket: ${bucketName}`);
-      console.log("   4. Then run this tool again");
+      showManualBucketInstructions(bucketName);
       return false;
     }
   } catch (error) {
     console.log("❌ creation failed");
     console.error(`   Error: ${error}`);
-    console.log(`\n🔧 Manual Setup Required:`);
-    console.log(`   Please create the bucket '${bucketName}' manually:`);
-    console.log("   1. Go to https://console.clever-cloud.com/");
-    console.log("   2. Navigate to your Cellar addon");
-    console.log(`   3. Create a new bucket: ${bucketName}`);
-    console.log("   4. Then run this tool again");
+    showManualBucketInstructions(bucketName);
     return false;
   }
 }
@@ -120,9 +122,8 @@ export async function clearBucket(client: S3Client): Promise<void> {
         if (totalDeleted === 0) {
           console.log("✅ already empty");
         } else {
-          const totalTime = ((Date.now() - startTime) / 1000).toFixed(1);
-          const avgRate = (totalDeleted / (Date.now() - startTime) * 1000).toFixed(1);
-          console.log(`\n✅ All objects deleted! Total: ${totalDeleted} files in ${totalTime}s (avg: ${avgRate}/s)`);
+          const { elapsed, rate } = calculateStats(startTime, totalDeleted);
+          console.log(`\n✅ All objects deleted! Total: ${totalDeleted} files in ${elapsed}s (avg: ${rate}/s)`);
         }
         break;
       }
@@ -147,13 +148,11 @@ export async function clearBucket(client: S3Client): Promise<void> {
       const deletedInThisBatch = deleteResults.filter(Boolean).length;
       totalDeleted += deletedInThisBatch;
 
-      const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
-      const rate = (totalDeleted / (Date.now() - startTime) * 1000).toFixed(1);
+      const { elapsed, rate } = calculateStats(startTime, totalDeleted);
       process.stdout.write(`\r🗑️  Deleting objects… ${totalDeleted} deleted (${elapsed}s at ${rate}/s) - batch ${batchCount}`);
 
       if (objectCount < BATCH_DELETE_SIZE) {
-        const totalTime = ((Date.now() - startTime) / 1000).toFixed(1);
-        const avgRate = (totalDeleted / (Date.now() - startTime) * 1000).toFixed(1);
+        const { elapsed: totalTime, rate: avgRate } = calculateStats(startTime, totalDeleted);
         console.log(`\n✅ All objects deleted! Total: ${totalDeleted} files in ${totalTime}s (avg: ${avgRate}/s)`);
         break;
       }

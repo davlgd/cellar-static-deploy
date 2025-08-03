@@ -4,6 +4,7 @@ import { parse } from "@bomb.sh/args";
 import inquirer from "inquirer";
 
 import type { DeployConfig } from "./types.js";
+import { validateSubdomain } from "./types.js";
 import { checkDnsCname, displayDnsResult } from "./dns-utils.js";
 
 /**
@@ -100,12 +101,7 @@ export async function promptForCredentials(args: any): Promise<DeployConfig> {
       type: "input",
       name: "bucket",
       message: "🌐 Enter the domain (bucket name):",
-      validate: (input: string) => {
-        if (input.trim() === "") return "Domain is required";
-        const domainParts = input.split('.');
-        if (domainParts.length <= 2) return "APEX domains are not supported. Use a subdomain (e.g., www.example.com).";
-        return true;
-      },
+      validate: validateSubdomain,
     });
   }
 
@@ -132,9 +128,9 @@ export async function promptForCredentials(args: any): Promise<DeployConfig> {
 
   // Validate domain is not APEX if provided via CLI
   if (args.domain) {
-    const domainParts = args.domain.split('.');
-    if (domainParts.length <= 2) {
-      throw new Error("APEX domains are not supported. Use a subdomain (e.g., www.example.com).");
+    const validation = validateSubdomain(args.domain);
+    if (validation !== true) {
+      throw new Error(validation);
     }
   }
 
@@ -158,19 +154,14 @@ export async function handleDnsCheck(args: any): Promise<void> {
       type: "input",
       name: "domain",
       message: "🌐 Enter the domain to check:",
-      validate: (input: string) => {
-        if (input.trim() === "") return "Domain is required";
-        const domainParts = input.split('.');
-        if (domainParts.length <= 2) return "APEX domains are not supported. Use a subdomain (e.g., www.example.com).";
-        return true;
-      },
+      validate: validateSubdomain,
     }]);
     domain = answer.domain;
   } else {
     // Validate domain is not APEX if provided via CLI
-    const domainParts = domain.split('.');
-    if (domainParts.length <= 2) {
-      throw new Error("APEX domains are not supported. Use a subdomain (e.g., www.example.com).");
+    const validation = validateSubdomain(domain);
+    if (validation !== true) {
+      throw new Error(validation);
     }
   }
 

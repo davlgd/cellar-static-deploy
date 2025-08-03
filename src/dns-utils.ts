@@ -1,6 +1,7 @@
 import { promises as dns } from "dns";
 
 import type { DnsCheckResult } from "./types.js";
+import { validateSubdomain, APEX_DOMAIN_ERROR, APEX_DOMAIN_DETAILS, CELLAR_HOSTNAME } from "./types.js";
 
 /**
  * Checks if a domain has the correct CNAME record pointing to Cellar
@@ -12,14 +13,14 @@ export async function checkDnsCname(domain: string): Promise<DnsCheckResult> {
     console.log(`🔍 Checking DNS CNAME record for ${domain}…`);
 
     // Check if domain is APEX (no subdomain)
-    const domainParts = domain.split('.');
-    if (domainParts.length <= 2) {
+    const validation = validateSubdomain(domain);
+    if (validation !== true) {
       console.log(`   ❌ APEX domain not supported`);
       return {
         success: false,
         domain,
-        error: "APEX domains are not supported",
-        details: "Use a subdomain (e.g., www.example.com)."
+        error: APEX_DOMAIN_ERROR,
+        details: APEX_DOMAIN_DETAILS
       };
     }
 
@@ -31,7 +32,7 @@ export async function checkDnsCname(domain: string): Promise<DnsCheckResult> {
         console.log(`   CNAME found: ${cnameTarget}`);
 
         // Check if the CNAME points to the correct Cellar endpoint
-        const isCellarEndpoint = cnameTarget === "cellar-c2.services.clever-cloud.com";
+        const isCellarEndpoint = cnameTarget === CELLAR_HOSTNAME;
 
         if (isCellarEndpoint) {
           return {
@@ -117,6 +118,6 @@ export function displayDnsResult(result: DnsCheckResult): void {
     console.log("   1. Create a CNAME record for your domain");
     console.log("   2. Point it to your Cellar bucket endpoint:");
     const hostname = result.domain.split('.')[0];
-    console.log(`      ${hostname} IN CNAME cellar-c2.services.clever-cloud.com.`);
+    console.log(`      ${hostname} IN CNAME ${CELLAR_HOSTNAME}.`);
   }
 }
