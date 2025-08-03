@@ -21,3 +21,19 @@ export interface DeployConfig {
   /** Local folder path to upload */
   folderPath: string;
 }
+
+/**
+ * DNS check result interface
+ */
+export interface DnsCheckResult {
+  /** Whether the DNS check was successful */
+  success: boolean;
+  /** Domain that was checked */
+  domain: string;
+  /** CNAME target found (if any) */
+  cnameTarget?: string;
+  /** Error message if check failed */
+  error?: string;
+  /** Additional details about the DNS resolution */
+  details?: string;
+}

@@ -1,5 +1,5 @@
 #!/usr/bin/env bun
-import { parseCliArgs, promptForCredentials, showHelp } from "./src/cli.js";
+import { handleDnsCheck, parseCliArgs, promptForCredentials, showHelp } from "./src/cli.js";
 import { uploadFolder } from "./src/file-utils.js";
 import { clearBucket, createS3Client, ensureBucketExists } from "./src/s3-client.js";
 import { CELLAR_ENDPOINT } from "./src/types.js";
@@ -11,8 +11,16 @@ async function main() {
   try {
     const args = parseCliArgs(process.argv);
 
+    // Check if first positional argument is a command (after bun and script path)
+    const command = args._?.[2];
+
     if (args.help) {
       showHelp();
+      return;
+    }
+
+    if (command === "check-dns") {
+      await handleDnsCheck(args);
       return;
     }
 
@@ -47,7 +55,7 @@ async function main() {
     console.log(`📍 Your site should be available at: https://${config.bucket}`);
   } catch (error) {
     console.log("\n💥 Deployment failed");
-    console.error(`   Error: ${error}`);
+    console.error(`   ${error}`);
     process.exit(1);
   }
 }
