@@ -35,5 +35,3 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 # AI Tools
 .claude/
-.cursor/
-CLAUDE.md
